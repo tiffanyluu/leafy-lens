@@ -1,8 +1,26 @@
 import { Router } from "express";
-import { registerUser, loginUser } from "../controllers/userController";
+import {
+  registerUser,
+  loginUser,
+  validateEmail,
+  validatePassword,
+} from "../controllers/userController";
+import validateRequest from "../middleware/validateRequest";
 const userRouter = Router();
 
-userRouter.post("/register", registerUser);
-userRouter.post("/login", loginUser);
+userRouter.post(
+  "/register",
+  validateEmail,
+  validatePassword,
+  validateRequest,
+  registerUser
+);
+userRouter.post(
+  "/login",
+  validateEmail,
+  validatePassword,
+  validateRequest,
+  loginUser
+);
 
 export default userRouter;

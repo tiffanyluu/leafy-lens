@@ -1,13 +1,24 @@
 import { Router } from "express";
 import {
   submitScan,
-  getAllScans,
+  getScanHistory,
   deleteScan,
+  validateUser,
+  validatePlantDataSchema,
+  validateScanId,
 } from "../controllers/scanController";
+import validateRequest from "../middleware/validateRequest";
+
 const scanRouter = Router();
 
-scanRouter.post("/scan", submitScan);
-scanRouter.get("/scans", getAllScans);
-scanRouter.delete("/scan/:id", deleteScan);
+scanRouter.post(
+  "/scan",
+  validateUser,
+  validatePlantDataSchema,
+  validateRequest,
+  submitScan
+);
+scanRouter.get("/scans", validateUser, validateRequest, getScanHistory);
+scanRouter.delete("/scan/:scanId", validateScanId, validateRequest, deleteScan);
 
 export default scanRouter;

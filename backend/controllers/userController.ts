@@ -1,5 +1,22 @@
 import { Request, Response } from "express";
 import { registerUserLogic, loginUserLogic } from "../services/userService";
+import { body } from "express-validator";
+
+const validateEmail = [
+  body("email")
+    .trim()
+    .isLength({ min: 1, max: 20 })
+    .withMessage("Email must be between 1 and 20 characters.")
+    .isEmail()
+    .withMessage(`Email format not correct`),
+];
+
+const validatePassword = [
+  body("password")
+    .trim()
+    .isLength({ min: 6, max: 20 })
+    .withMessage("Password must be between 6 and 20 characters."),
+];
 
 const registerUser = async (req: Request, res: Response) => {
   try {
@@ -29,4 +46,4 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, loginUser };
+export { registerUser, loginUser, validateEmail, validatePassword };
