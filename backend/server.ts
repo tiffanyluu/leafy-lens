@@ -8,6 +8,8 @@ import mongoose from "mongoose";
 import connectDB from "./config/dbConfig";
 connectDB();
 
+import errorHandler from "./middleware/errorHandler";
+
 const app = express();
 
 app.use(cors());
@@ -16,6 +18,8 @@ app.use(express.json());
 app.get("/", (_req: Request, res: Response) => {
   res.send("Hello from the backend of LeafyLens!");
 });
+
+app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");
