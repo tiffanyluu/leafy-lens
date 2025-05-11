@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express, { Request, Response } from "express";
 import cors from "cors";
+
 import mongoose from "mongoose";
 import connectDB from "./config/dbConfig";
-
 connectDB();
 
 const app = express();

@@ -1,22 +1,20 @@
 import Scan from "../models/Scan";
 import { PlantData } from "../types/PlantData";
 
-const submitScan = async (userId: string, plantData: PlantData) => {
-  const newScan = new Scan({
+const submitScanLogic = async (userId: string, plantData: PlantData) => {
+  const newScan = await Scan.create({
     user: userId,
     plantData: plantData,
   });
-
-  await newScan.save();
   return newScan;
 };
 
-const getScanHistory = async (userId: string) => {
+const getAllScansLogic = async (userId: string) => {
   return await Scan.find({ user: userId });
 };
 
-const deleteScan = async (scanId: string) => {
+const deleteScanLogic = async (scanId: string) => {
   await Scan.findByIdAndDelete(scanId);
 };
 
-export { submitScan, getScanHistory, deleteScan };
+export { submitScanLogic, getAllScansLogic, deleteScanLogic };

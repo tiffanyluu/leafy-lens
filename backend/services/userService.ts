@@ -1,7 +1,7 @@
 import User from "../models/User";
 import bcrypt from "bcryptjs";
 
-const registerUser = async (email: string, password: string) => {
+const registerUserLogic = async (email: string, password: string) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     throw new Error("User already exists");
@@ -13,7 +13,7 @@ const registerUser = async (email: string, password: string) => {
   return newUser;
 };
 
-const loginUser = async (email: string, password: string) => {
+const loginUserLogic = async (email: string, password: string) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw new Error("Invalid email or password");
@@ -25,4 +25,4 @@ const loginUser = async (email: string, password: string) => {
   return user;
 };
 
-export { registerUser, loginUser };
+export { registerUserLogic, loginUserLogic };
