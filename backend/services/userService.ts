@@ -1,5 +1,11 @@
 import User from "../models/User";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const createToken = (_id: string) => {
+  const secret = process.env.JWT_SECRET as string;
+  return jwt.sign({ _id }, secret, { expiresIn: "1d" });
+};
 
 const registerUserLogic = async (email: string, password: string) => {
   const userExists = await User.findOne({ email });
@@ -8,9 +14,12 @@ const registerUserLogic = async (email: string, password: string) => {
   }
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = new User({ email, password: hashedPassword });
-  await newUser.save();
-  return newUser;
+  const newUser = await User.create({ email, password: hashedPassword });
+  const token = createToken(newUser._id.toString());
+  return {
+    email: newUser.email,
+    token,
+  };
 };
 
 const loginUserLogic = async (email: string, password: string) => {
@@ -22,7 +31,12 @@ const loginUserLogic = async (email: string, password: string) => {
   if (!isMatch) {
     throw new Error("Invalid email or password");
   }
-  return user;
+  const token = createToken(user._id.toString());
+
+  return {
+    email: user.email,
+    token,
+  };
 };
 
 export { registerUserLogic, loginUserLogic };
