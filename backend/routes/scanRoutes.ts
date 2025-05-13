@@ -10,9 +10,9 @@ import verifyToken from "../middleware/verifyToken";
 
 const scanRouter = Router();
 
-scanRouter.post("/scans", verifyToken, validateRequest, submitScan);
+scanRouter.post("/", verifyToken, validateRequest, submitScan);
 
-scanRouter.get("/scans", verifyToken, validateRequest, getScanHistory);
+scanRouter.get("/", verifyToken, validateRequest, getScanHistory);
 
 scanRouter.delete(
   "/scan/:scanId",

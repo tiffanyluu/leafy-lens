@@ -2,14 +2,13 @@ import Scan from "../models/Scan";
 import { ApiResponse } from "../types/ApiResponse";
 import axios from "axios";
 
-const PLANT_API_URL = "https://my-api.plantnet.org/v2/identify/";
+const PLANT_API_URL = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANT_API_KEY}`;
 
 const identifyPlantLogic = async (
   imageBase64: string
 ): Promise<ApiResponse> => {
   try {
     const response = await axios.post(PLANT_API_URL, {
-      api_key: process.env.PLANT_API_KEY,
       images: [imageBase64],
     });
 
@@ -31,7 +30,7 @@ const identifyPlantLogic = async (
     return plantData;
   } catch (error) {
     console.error("Error identifying plant:", error);
-    throw new Error("Failed to identify plant.");
+    throw new Error("Request to identify plant failed.");
   }
 };
 

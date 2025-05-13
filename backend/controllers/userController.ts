@@ -5,8 +5,9 @@ import { body } from "express-validator";
 const validateEmail = [
   body("email")
     .trim()
-    .isLength({ min: 1, max: 20 })
-    .withMessage("Email must be between 1 and 20 characters.")
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Email must be between 1 and 100 characters.")
+    .bail()
     .isEmail()
     .withMessage(`Email format not correct`),
 ];
@@ -14,8 +15,8 @@ const validateEmail = [
 const validatePassword = [
   body("password")
     .trim()
-    .isLength({ min: 6, max: 20 })
-    .withMessage("Password must be between 6 and 20 characters."),
+    .isLength({ min: 5, max: 100 })
+    .withMessage("Password must be between 5 and 100 characters."),
 ];
 
 const registerUser = async (req: Request, res: Response) => {
