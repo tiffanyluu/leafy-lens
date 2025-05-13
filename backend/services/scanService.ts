@@ -1,69 +1,100 @@
 import Scan from "../models/Scan";
 import { ApiResponse } from "../types/ApiResponse";
+import FormData from "form-data";
 import axios from "axios";
+import fs from "fs";
+import path from "path";
+import mime from "mime-types";
 
 const PLANT_API_URL = `https://my-api.plantnet.org/v2/identify/all?api-key=${process.env.PLANT_API_KEY}`;
 
-const identifyPlantLogic = async (
-  imageBase64: string
-): Promise<ApiResponse> => {
+const identifyPlantLogic = async (imagePath: string) => {
   try {
-    const response = await axios.post(PLANT_API_URL, {
-      images: [imageBase64],
+    if (!fs.existsSync(imagePath)) {
+      throw new Error(`Image file not found at path: ${imagePath}`);
+    }
+
+    const form = new FormData();
+
+    const imageBuffer = fs.readFileSync(imagePath);
+    const filename = path.basename(imagePath);
+
+    const contentType = mime.lookup(imagePath) || "application/octet-stream";
+
+    form.append("images", imageBuffer, {
+      filename: filename,
+      contentType: contentType,
     });
 
-    const plantData: ApiResponse = {
-      plantName: response.data.suggestions[0].plant_name,
-      scientificName: response.data.suggestions[0].scientific_name,
-      description: response.data.suggestions[0].plant_description,
-      confidence: response.data.suggestions[0].confidence,
-      careTips: {
-        watering: response.data.suggestions[0].watering || "Not available",
-        sunlight: response.data.suggestions[0].sunlight || "Not available",
-        soil: response.data.suggestions[0].soil || "Not available",
-        temperature:
-          response.data.suggestions[0].temperature || "Not available",
+    form.append("organs", "leaf");
+
+    const response = await axios.post(PLANT_API_URL, form, {
+      headers: {
+        ...form.getHeaders(),
       },
-      sourceUrl: response.data.suggestions[0].source_url || "",
+    });
+
+    console.log("Plant identification successful");
+
+    const apiResult = response.data;
+
+    const formattedResponse: ApiResponse = {
+      plantName:
+        apiResult.results[0]?.species?.commonNames?.[0] || "Unknown Plant",
+      scientificName:
+        apiResult.results[0]?.species?.scientificNameWithoutAuthor ||
+        "Unknown Scientific Name",
+      family:
+        apiResult.results[0]?.species?.family?.scientificNameWithoutAuthor ||
+        "No description available",
+      confidence: apiResult.results[0]?.score || 0,
     };
 
-    return plantData;
+    return formattedResponse;
   } catch (error) {
-    console.error("Error identifying plant:", error);
+    console.error("Request to identify plant failed:", error);
     throw new Error("Request to identify plant failed.");
   }
 };
 
 const submitScanLogic = async (
   userId: string,
-  imageBase64: string,
+  imagePath: string,
   plantData: ApiResponse
 ) => {
-  const newScan = await Scan.create({
-    user: userId,
-    imageUrl: imageBase64,
-    plantName: plantData.plantName,
-    scientificName: plantData.scientificName,
-    description: plantData.description,
-    confidence: plantData.confidence,
-    careTips: {
-      watering: plantData.careTips.watering,
-      sunlight: plantData.careTips.sunlight,
-      soil: plantData.careTips.soil,
-      temperature: plantData.careTips.temperature,
-    },
-    sourceUrl: plantData.sourceUrl || "",
-  });
+  try {
+    const imageBuffer = fs.readFileSync(imagePath);
+    const contentType = mime.lookup(imagePath) || "application/octet-stream";
+    const imageBase64 = `data:${contentType};base64,${imageBuffer.toString(
+      "base64"
+    )}`;
 
-  return newScan;
+    const newScan = await Scan.create({
+      user: userId,
+      plantName: plantData.plantName,
+      scientificName: plantData.scientificName,
+      family: plantData.family,
+      confidence: plantData.confidence,
+      imageUrl: imageBase64,
+    });
+
+    return newScan;
+  } catch (error) {
+    console.error("Failed to submit scan:", error);
+    throw new Error("Failed to submit scan to database");
+  }
 };
 
 const getAllScansLogic = async (userId: string) => {
-  return await Scan.find({ user: userId });
+  return await Scan.find({ user: userId }).sort({ createdAt: -1 });
 };
 
 const deleteScanLogic = async (scanId: string) => {
-  await Scan.findByIdAndDelete(scanId);
+  const deletedScan = await Scan.findByIdAndDelete(scanId);
+  if (!deletedScan) {
+    throw new Error("Scan not found");
+  }
+  return deletedScan;
 };
 
 export {

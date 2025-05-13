@@ -7,6 +7,7 @@ import {
 } from "../services/scanService";
 import { param } from "express-validator";
 import mongoose from "mongoose";
+import fs from "fs";
 
 const validateScanId = [
   param("scanId")
@@ -19,23 +20,37 @@ const validateScanId = [
     .withMessage("scanId must be a valid MongoDB ID."),
 ];
 
-const submitScan = async (req: Request, res: Response) => {
-  const { imageBase64 } = req.body;
+const submitScan = async (req: Request, res: Response): Promise<void> => {
   const userId = req.userId;
+  const file = req.file;
 
-  if (!userId) {
-    res.status(401).json({ message: "Unauthorized" });
-  } else {
-    try {
-      const plantData = await identifyPlantLogic(imageBase64);
-      const newScan = await submitScanLogic(userId, imageBase64, plantData);
-      res.status(201).json({ newScan });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(400).json({ message: error.message });
-      } else {
-        res.status(400).json({ message: "An unknown error occurred." });
-      }
+  if (!userId || !file) {
+    res.status(400).json({ message: "Missing user or image file" });
+    return;
+  }
+
+  try {
+    const plantData = await identifyPlantLogic(file.path);
+    const newScan = await submitScanLogic(userId, file.path, plantData);
+
+    fs.unlink(file.path, (err) => {
+      if (err) console.error("Error deleting temporary file:", err);
+    });
+
+    res.status(201).json({ newScan });
+  } catch (error: unknown) {
+    console.error("Error in submitScan:", error);
+
+    if (file && file.path) {
+      fs.unlink(file.path, (err) => {
+        if (err) console.error("Error deleting temporary file:", err);
+      });
+    }
+
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(400).json({ message: "Plant identification failed." });
     }
   }
 };
@@ -49,6 +64,7 @@ const getScanHistory = async (req: Request, res: Response) => {
       const allScans = await getAllScansLogic(userId);
       res.status(200).json({ allScans });
     } catch (error: unknown) {
+      console.error("Error in getScanHistory:", error);
       if (error instanceof Error) {
         res.status(400).json({ message: error.message });
       } else {
@@ -61,9 +77,12 @@ const getScanHistory = async (req: Request, res: Response) => {
 const deleteScan = async (req: Request, res: Response) => {
   const { scanId } = req.params;
   try {
-    await deleteScanLogic(scanId);
-    res.status(200).json({ message: "Scan deleted successfully" });
+    const deletedScan = await deleteScanLogic(scanId);
+    res
+      .status(200)
+      .json({ message: "Scan deleted successfully", scan: deletedScan });
   } catch (error: unknown) {
+    console.error("Error in deleteScan:", error);
     if (error instanceof Error) {
       res.status(400).json({ message: error.message });
     } else {

@@ -7,10 +7,13 @@ import {
 } from "../controllers/scanController";
 import validateRequest from "../middleware/validateRequest";
 import verifyToken from "../middleware/verifyToken";
+import multer from "multer";
+
+const upload = multer({ dest: "uploads/" });
 
 const scanRouter = Router();
 
-scanRouter.post("/", verifyToken, validateRequest, submitScan);
+scanRouter.post("/", verifyToken, upload.single("image"), submitScan);
 
 scanRouter.get("/", verifyToken, validateRequest, getScanHistory);
 
