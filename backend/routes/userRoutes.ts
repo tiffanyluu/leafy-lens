@@ -15,6 +15,7 @@ userRouter.post(
   validateRequest,
   registerUser
 );
+
 userRouter.post(
   "/login",
   validateEmail,

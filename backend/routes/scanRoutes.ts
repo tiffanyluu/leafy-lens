@@ -3,31 +3,16 @@ import {
   submitScan,
   getScanHistory,
   deleteScan,
-  validateUser,
-  validatePlantDataSchema,
   validateScanId,
 } from "../controllers/scanController";
 import validateRequest from "../middleware/validateRequest";
-import verifyToken from "middleware/verifyToken";
+import verifyToken from "../middleware/verifyToken";
 
 const scanRouter = Router();
 
-scanRouter.post(
-  "/scan",
-  verifyToken,
-  validateUser,
-  validatePlantDataSchema,
-  validateRequest,
-  submitScan
-);
+scanRouter.post("/scans", verifyToken, validateRequest, submitScan);
 
-scanRouter.get(
-  "/scans",
-  verifyToken,
-  validateUser,
-  validateRequest,
-  getScanHistory
-);
+scanRouter.get("/scans", verifyToken, validateRequest, getScanHistory);
 
 scanRouter.delete(
   "/scan/:scanId",

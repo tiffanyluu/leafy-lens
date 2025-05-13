@@ -1,10 +1,9 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-// Extend Express Request interface to include user property
 declare module "express" {
   interface Request {
-    user?: jwt.JwtPayload | string;
+    userId?: string;
   }
 }
 
@@ -23,9 +22,13 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
     }
 
     const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET as string);
-    req.user = decoded;
 
-    next();
+    if (typeof decoded === "object" && "_id" in decoded) {
+      req.userId = (decoded as JwtPayload)._id as string;
+      next();
+    } else {
+      res.status(401).json({ error: "Invalid token payload" });
+    }
   } catch (error) {
     console.log(error);
     res.status(401).json({ error: "Invalid token" });

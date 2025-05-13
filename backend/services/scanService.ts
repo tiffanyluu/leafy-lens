@@ -2,7 +2,7 @@ import Scan from "../models/Scan";
 import { ApiResponse } from "../types/ApiResponse";
 import axios from "axios";
 
-const PLANT_API_URL = "";
+const PLANT_API_URL = "https://my-api.plantnet.org/v2/identify/";
 
 const identifyPlantLogic = async (
   imageBase64: string
