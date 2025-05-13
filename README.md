@@ -4,7 +4,7 @@ A plant identification web app built with the MERN stack (MongoDB, Express, Reac
 
 ## Features
 
-- **Plant Identification**: Upload a plant photo, and the app uses the **Plant.id API** to identify it and show details like its name, description, and care tips.
+- **Plant Identification**: Upload a plant photo, and the app uses the **Pl@ntNet API** to identify it and show details like its name, description, and care tips.
 - **Search Functionality**: Search for plants by name and view detailed information.
 - **Plant Care Tips**: Get personalized care tips based on the plant, including watering, sunlight, and other care instructions.
 - **User Accounts**: Users can sign up, log in, and authenticate using **JWT** to manage their plant preferences securely.
