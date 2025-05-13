@@ -2,10 +2,19 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const scanSchema = new Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   plantName: { type: String, required: true },
   scientificName: { type: String, required: true },
-  careTips: { type: String, required: true },
+  description: { type: String, required: true },
+  imageUrl: { type: String }, // base 64 string
+  confidence: { type: Number },
+  careTips: {
+    watering: { type: String },
+    sunlight: { type: String },
+    soil: { type: String },
+    temperature: { type: String },
+  },
+  sourceUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

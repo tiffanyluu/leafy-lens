@@ -30,6 +30,11 @@ const validatePlantDataSchema = checkSchema({
     isString: true,
     errorMessage: "Scientific Name must be a string",
   },
+  description: {
+    in: ["body"],
+    isString: true,
+    errorMessage: "Description must be a string",
+  },
   careTips: {
     in: ["body"],
     isString: true,

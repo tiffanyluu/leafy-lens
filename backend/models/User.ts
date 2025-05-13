@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  scanHistory: [{ type: Schema.Types.ObjectId, ref: "Plant" }],
+  scanHistory: [{ type: Schema.Types.ObjectId, ref: "Scan" }],
 });
 
 export default mongoose.model("User", userSchema);
