@@ -5,7 +5,7 @@ const scanSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   plantName: { type: String, required: true },
   scientificName: { type: String, required: true },
-  description: { type: String, required: true },
+  family: { type: String, required: true },
   imageUrl: { type: String }, // base 64 string
   confidence: { type: Number },
   careTips: {
