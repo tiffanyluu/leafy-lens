@@ -7,7 +7,7 @@ import {
 } from "../services/scanService";
 import { param } from "express-validator";
 import mongoose from "mongoose";
-import fs from "fs";
+import fs from "fs/promises";
 
 const validateScanId = [
   param("scanId")
@@ -33,18 +33,25 @@ const submitScan = async (req: Request, res: Response): Promise<void> => {
     const plantData = await identifyPlantLogic(file.path);
     const newScan = await submitScanLogic(userId, file.path, plantData);
 
-    fs.unlink(file.path, (err) => {
-      if (err) console.error("Error deleting temporary file:", err);
-    });
-
     res.status(201).json({ newScan });
+
+    try {
+      await fs.unlink(file.path);
+    } catch (unlinkError) {
+      console.error("Error deleting temporary file:", unlinkError);
+    }
   } catch (error: unknown) {
     console.error("Error in submitScan:", error);
 
     if (file && file.path) {
-      fs.unlink(file.path, (err) => {
-        if (err) console.error("Error deleting temporary file:", err);
-      });
+      try {
+        await fs.unlink(file.path);
+      } catch (unlinkError) {
+        console.error(
+          "Error deleting temporary file after processing error:",
+          unlinkError
+        );
+      }
     }
 
     if (error instanceof Error) {

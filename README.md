@@ -10,4 +10,4 @@ A plant identification web app built with the MERN stack (MongoDB, Express, Reac
 - **Mobile-Responsive Design**: The app works smoothly across phones, tablets, and desktops for easy navigation and plant identification.
   <br>
 
-> ℹ️ **Coming Soon**: Personalized care tips (watering, sunlight, etc.) will be reintroduced once the **Trefle API** is back up.
+> ℹ️ **Coming Soon**: Personalized care tips (watering, sunlight, etc.) will be re-introduced once the **Trefle API** is back up.
